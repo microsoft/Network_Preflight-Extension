@@ -9,7 +9,7 @@ steps:
 - checkout: self
 
 # Use Node.js 20 (matches package.json engines)
-- task: NodeTool@0
+- task: NodeTool@1
   displayName: 'Use Node.js 20'
   inputs:
     versionSpec: '20.x'
