@@ -3,7 +3,7 @@
   "id": "AzureDevOpsCSS-Sagar",
   "publisher": "AzureDevOpsCSS-Sagar",
   "name": "Network Preflight",
-  "version": "1.0.21",
+  "version": "1.0.22",
   "description": "Azure Pipelines tasks to validate HTTP, DNS, and TCP connectivity from build/release agents before critical deployments.",
   "public": true,
   "categories": [ "Azure Pipelines" ],
@@ -15,21 +15,21 @@
   },
   "links": {
     "repository": {
-      "uri": "https://github.com/patelsagar63/Network_Preflight-Extension"
+      "uri": "https://github.com/microsoft/Network_Preflight-Extension"
     },
     "support": {
-      "uri": "https://github.com/patelsagar63/Network_Preflight-Extension/issues"
+      "uri": "https://github.com/microsoft/Network_Preflight-Extension/issues"
     },
     "license": {
-      "uri": "https://github.com/patelsagar63/Network_Preflight-Extension/blob/main/LICENSE.md"
+      "uri": "https://github.com/microsoft/Network_Preflight-Extension/blob/main/LICENSE.md"
     },
     "privacy": {
-      "uri": "https://github.com/patelsagar63/Network_Preflight-Extension/blob/main/PRIVACY.md"
+      "uri": "https://github.com/microsoft/Network_Preflight-Extension/blob/main/PRIVACY.md"
     }
   },
   "content": {
     "details": {
-      "path": "overview.md"
+      "path": "README.md"
     }
   },
   "files": [

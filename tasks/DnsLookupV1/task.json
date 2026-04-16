@@ -5,7 +5,7 @@
   "description": "Resolve DNS records (A/AAAA/CNAME/TXT/NS) from the agent—simple nslookup-style test.",
   "helpMarkDown": "Tip: set 'resolver' (e.g. 8.8.8.8) to bypass restrictive corporate DNS during diagnostics.",
   "category": "Utility",
-  "author": "https://github.com/patelsagar63/Network_Preflight-Extension",
+  "author": "https://github.com/microsoft/Network_Preflight-Extension",
   "visibility": [ "Build", "Release" ],
   "demands": [],
   "version": { "Major": 1, "Minor": 0, "Patch": 7 },

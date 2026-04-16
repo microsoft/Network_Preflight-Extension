@@ -1,5 +1,4 @@
 ## Network Preflight
-
 An **Azure DevOps Pipelines extension** that validates network connectivity **from the build/release agent** before critical deployments. This helps you catch DNS, HTTP, or TCP connectivity issues early in your pipeline.
 
 https://marketplace.visualstudio.com/items?itemName=AzureDevOpsCSS-Sagar.AzureDevOpsCSS-Sagar
@@ -60,7 +59,7 @@ steps:
 ```
 
 ## ⚠️ Support Disclaimer
-This extension is not an officially supported Microsoft product — for issues or feature requests, please create a GitHub issue in the https://github.com/patelsagar63/Network_Preflight-Extension instead of opening a Microsoft Support request.
+This extension is not an officially supported Microsoft product — for issues or feature requests, please create a GitHub issue in the https://github.com/microsoft/Network_Preflight-Extension instead of opening a Microsoft Support request.
 It is developed and published independently by Microsoft support engineers to assist customers and internal support teams with troubleshooting network connectivity scenarios in Azure DevOps Pipelines.
 This extension is provided as-is, without any warranties or guarantees of support from Microsoft.
 Use of this extension in production environments should follow your organization's internal validation and governance processes.

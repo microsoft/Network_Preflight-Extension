@@ -5,7 +5,7 @@
   "description": "Validate HTTP/S reachability and latency from the agent.",
   "helpMarkDown": "Docs: See extension README in the Marketplace listing.",
   "category": "Utility",
-  "author": "https://github.com/patelsagar63/Network_Preflight-Extension",
+  "author": "https://github.com/microsoft/Network_Preflight-Extension",
   "visibility": [ "Build", "Release" ],
   "demands": [],
   "version": { "Major": 1, "Minor": 0, "Patch": 2 },
