@@ -5,14 +5,14 @@ import net = require('net');
 import tls = require('tls');
 import dns from 'dns/promises';
 import crypto from 'crypto';
-
+const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 function publishSummary(name: string, fileBase: string, markdown: string) {
   const dir = process.env['AGENT_TEMPDIRECTORY'] || process.cwd();
   const filePath = path.join(dir, fileBase);
   fs.writeFileSync(filePath, markdown, { encoding: 'utf8' });
 
   // Shorthand for attaching a Markdown summary to the run. [1](https://learn.microsoft.com/en-us/azure/devops/pipelines/scripts/logging-commands?view=azure-devops)
-  console.log(`##vso[task.uploadsummary]${filePath}`); [1](https://learn.microsoft.com/en-us/azure/devops/pipelines/scripts/logging-commands?view=azure-devops)
+  console.log(`##vso[task.uploadsummary]${filePath}`);
 }
 
 function mdSafe(s: string) {
@@ -201,18 +201,18 @@ async function run() {
       ALL_PROXY: process.env['ALL_PROXY'] || process.env['all_proxy']
     };
 
-    tl.info('=== Network Preflight: TCP Probe ===');
-    tl.info(`Timeout: ${Math.round(timeoutMs / 1000)}s | Retries: ${retries} | Default TLS: ${defaultUseTls ? 'true' : 'false'}`);
+    console.log('=== Network Preflight: TCP Probe ===');
+    console.log(`Timeout: ${Math.round(timeoutMs / 1000)}s | Retries: ${retries} | Default TLS: ${defaultUseTls ? 'true' : 'false'}`);
 
     // Proxy hints (informational)
     if (proxyInfo.HTTP_PROXY || proxyInfo.HTTPS_PROXY || proxyInfo.ALL_PROXY) {
-      tl.info('Proxy environment variables detected (informational):');
-      if (proxyInfo.HTTP_PROXY) tl.info(`  HTTP_PROXY: ${proxyInfo.HTTP_PROXY}`);
-      if (proxyInfo.HTTPS_PROXY) tl.info(`  HTTPS_PROXY: ${proxyInfo.HTTPS_PROXY}`);
-      if (proxyInfo.ALL_PROXY) tl.info(`  ALL_PROXY: ${proxyInfo.ALL_PROXY}`);
-      if (proxyInfo.NO_PROXY) tl.info(`  NO_PROXY: ${proxyInfo.NO_PROXY}`);
+      console.log('Proxy environment variables detected (informational):');
+      if (proxyInfo.HTTP_PROXY) console.log(`  HTTP_PROXY: ${proxyInfo.HTTP_PROXY}`);
+      if (proxyInfo.HTTPS_PROXY) console.log(`  HTTPS_PROXY: ${proxyInfo.HTTPS_PROXY}`);
+      if (proxyInfo.ALL_PROXY) console.log(`  ALL_PROXY: ${proxyInfo.ALL_PROXY}`);
+      if (proxyInfo.NO_PROXY) console.log(`  NO_PROXY: ${proxyInfo.NO_PROXY}`);
     } else {
-      tl.info('No proxy environment variables detected');
+      console.log('No proxy environment variables detected');
     }
 
     type Result = {
@@ -252,12 +252,12 @@ async function run() {
       if (serverNameOverride) t.serverName = serverNameOverride;
 
       const normalized = `${t.host}:${t.port}`;
-      tl.info(`Normalized target: ${normalized}`);
-      tl.info(`Mode: ${t.useTls ? 'TLS' : 'TCP'}${t.useTls ? ` | SNI=${t.serverName ?? '(none)'}` : ''}`);
+      console.log(`Normalized target: ${normalized}`);
+      console.log(`Mode: ${t.useTls ? 'TLS' : 'TCP'}${t.useTls ? ` | SNI=${t.serverName ?? '(none)'}` : ''}`);
 
       const resolvedIPs = await resolveIPs(t.host);
       if (resolvedIPs.length) {
-        tl.info(`DNS resolved IPs: ${resolvedIPs.join(', ')}`);
+        console.log(`DNS resolved IPs: ${resolvedIPs.join(', ')}`);
       } else {
         tl.warning(`DNS resolution unavailable (host may be IP literal, or DNS blocked/unreachable)`);
       }
@@ -269,7 +269,7 @@ async function run() {
       let reason: string | undefined;
 
       while (attempt <= retries && !passed) {
-        tl.info(`Attempt ${attempt + 1} of ${retries + 1}`);
+        console.log(`Attempt ${attempt + 1} of ${retries + 1}`);
 
         try {
           lastProbe = await probe(t.host, t.port, timeoutMs, t.useTls, t.serverName);
@@ -277,7 +277,7 @@ async function run() {
           const remote = lastProbe.remoteAddress ? `${lastProbe.remoteAddress}:${lastProbe.remotePort ?? ''}` : undefined;
           const local = lastProbe.localAddress ? `${lastProbe.localAddress}:${lastProbe.localPort ?? ''}` : undefined;
 
-          tl.info(`Connected: remote=${remote ?? '-'} | local=${local ?? '-'} | latency=${lastProbe.latency}ms`);
+          console.log(`Connected: remote=${remote ?? '-'} | local=${local ?? '-'} | latency=${lastProbe.latency}ms`);
 
           if (resolvedIPs.length && lastProbe.remoteAddress && !resolvedIPs.includes(lastProbe.remoteAddress)) {
             tl.warning(`Remote IP differs from DNS list (possible proxy/LB/NAT path): connected=${lastProbe.remoteAddress}, dns=[${resolvedIPs.join(', ')}]`);
@@ -285,14 +285,14 @@ async function run() {
 
           if (t.useTls && lastProbe.tls) {
             const tlsInfo = lastProbe.tls;
-            tl.info(`TLS: protocol=${tlsInfo.protocol ?? '-'}, cipher=${tlsInfo.cipher ?? '-'}, ALPN=${tlsInfo.alpn ?? '-'}`);
-            tl.info(`TLS: authorized=${tlsInfo.authorized ? 'true' : 'false'}${tlsInfo.authorizationError ? ` (${tlsInfo.authorizationError})` : ''}`);
+            console.log(`TLS: protocol=${tlsInfo.protocol ?? '-'}, cipher=${tlsInfo.cipher ?? '-'}, ALPN=${tlsInfo.alpn ?? '-'}`);
+            console.log(`TLS: authorized=${tlsInfo.authorized ? 'true' : 'false'}${tlsInfo.authorizationError ? ` (${tlsInfo.authorizationError})` : ''}`);
 
             if (tlsInfo.certSubjectCN || tlsInfo.certIssuerCN) {
-              tl.info(`Cert: SubjectCN=${tlsInfo.certSubjectCN ?? '-'} | IssuerCN=${tlsInfo.certIssuerCN ?? '-'}`);
+              console.log(`Cert: SubjectCN=${tlsInfo.certSubjectCN ?? '-'} | IssuerCN=${tlsInfo.certIssuerCN ?? '-'}`);
             }
-            if (tlsInfo.certValidTo) tl.info(`Cert: ValidTo=${tlsInfo.certValidTo}`);
-            if (tlsInfo.certFingerprintSha256) tl.info(`Cert: SHA256=${tlsInfo.certFingerprintSha256}`);
+            if (tlsInfo.certValidTo) console.log(`Cert: ValidTo=${tlsInfo.certValidTo}`);
+            if (tlsInfo.certFingerprintSha256) console.log(`Cert: SHA256=${tlsInfo.certFingerprintSha256}`);
           }
 
           // “Pass” means we established the connection + (if TLS) completed handshake.
@@ -308,7 +308,7 @@ async function run() {
 
         if (!passed && attempt++ < retries) {
           const backoff = 250 * attempt;
-          tl.info(`Retrying in ${backoff} ms...`);
+          console.log(`Retrying in ${backoff} ms...`);
           await delay(backoff);
         }
       }
@@ -339,7 +339,7 @@ async function run() {
           certFingerprintSha256: lastProbe.tls?.certFingerprintSha256
         });
 
-        tl.info(`✅ PASS: ${normalized}`);
+        console.log(`✅ PASS: ${normalized}`);
       } else {
         results.push({
           target: entry,
@@ -359,13 +359,13 @@ async function run() {
     }
 
     // Console summary (great for non-debug runs)
-    tl.info('----------------------------------------');
-    tl.info('Network Preflight Summary (TCP):');
+    console.log('----------------------------------------');
+    console.log('Network Preflight Summary (TCP):');
     results.forEach(r => {
       const status = r.passed ? 'PASS' : 'FAIL';
-      tl.info(`${status} | ${r.normalized} | latency=${r.latency ?? '-'}ms | remote=${r.remote ?? '-'} | tls=${r.useTls ? 'true' : 'false'}`);
+      console.log(`${status} | ${r.normalized} | latency=${r.latency ?? '-'}ms | remote=${r.remote ?? '-'} | tls=${r.useTls ? 'true' : 'false'}`);
     });
-    tl.info('----------------------------------------');
+    console.log('----------------------------------------');
 
     // Markdown summary
     const lines: string[] = [
