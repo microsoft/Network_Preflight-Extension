@@ -6,6 +6,7 @@ import tls = require('tls');
 import dns from 'dns/promises';
 import crypto from 'crypto';
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
 function publishSummary(name: string, fileBase: string, markdown: string) {
   const dir = process.env['AGENT_TEMPDIRECTORY'] || process.cwd();
   const filePath = path.join(dir, fileBase);
