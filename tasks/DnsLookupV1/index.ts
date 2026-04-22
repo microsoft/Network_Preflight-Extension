@@ -2,6 +2,7 @@ import tl = require('azure-pipelines-task-lib/task');
 import fs = require('fs');
 import path = require('path');
 const dnsPromises = require('dns').promises;
+const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 // Publish summary
 function publishSummary(name: string, fileBase: string, markdown: string) {
@@ -26,13 +27,13 @@ async function run() {
     const resolver = new dnsPromises.Resolver();
     if (resolverAddr) resolver.setServers([resolverAddr]);
 
-    tl.info('=== Network Preflight: DNS Lookup ===');
-    tl.info(`Record Type: ${type} | Timeout: ${timeoutMs / 1000}s | Retries: ${retries}`);
+    console.log('=== Network Preflight: DNS Lookup ===');
+    console.log(`Record Type: ${type} | Timeout: ${timeoutMs / 1000}s | Retries: ${retries}`);
 
     if (resolverAddr) {
-      tl.info(`Using custom DNS resolver: ${resolverAddr}`);
+      console.log(`Using custom DNS resolver: ${resolverAddr}`);
     } else {
-      tl.info(`Using system-configured resolver`);
+      console.log(`Using system-configured resolver`);
     }
 
     type Result = {
@@ -58,7 +59,7 @@ async function run() {
       let reason: string | undefined;
 
       while (attempt <= retries && !passed) {
-        tl.info(`Attempt ${attempt + 1} of ${retries + 1}`);
+        console.log(`Attempt ${attempt + 1} of ${retries + 1}`);
 
         try {
           // Add manual timeout wrapper
@@ -72,12 +73,12 @@ async function run() {
           passed = Array.isArray(answers) && answers.length > 0;
 
           if (passed) {
-            tl.info(`Resolved: ${JSON.stringify(answers)}`);
+            console.log(`Resolved: ${JSON.stringify(answers)}`);
             reason = undefined;
 
             // Insight for DNS scenarios
             if (type === 'A' || type === 'AAAA') {
-              tl.info(`IP resolution successful — verify firewall allows these IPs`);
+              console.log(`IP resolution successful — verify firewall allows these IPs`);
             }
 
           } else {
@@ -106,13 +107,13 @@ async function run() {
 
         if (!passed && attempt++ < retries) {
           const backoff = 250 * attempt;
-          tl.info(`Retrying in ${backoff} ms...`);
+          console.log(`Retrying in ${backoff} ms...`);
           await new Promise(r => setTimeout(r, backoff));
         }
       }
 
       if (passed) {
-        tl.info(`✅ PASS: ${name}`);
+        console.log(`✅ PASS: ${name}`);
       } else {
         tl.error(`❌ FAIL: ${name} - ${reason ?? lastErr?.message ?? 'Unknown error'}`);
       }
@@ -130,16 +131,16 @@ async function run() {
     }
 
     // Console summary
-    tl.info('----------------------------------------');
-    tl.info('Network Preflight Summary (DNS):');
+    console.log('----------------------------------------');
+    console.log('Network Preflight Summary (DNS):');
 
     results.forEach(r => {
       const status = r.passed ? 'PASS' : 'FAIL';
       const val = r.answers ? JSON.stringify(r.answers) : r.error ?? '-';
-      tl.info(`${status} | ${r.name} | ${r.type} | ${val}`);
+      console.log(`${status} | ${r.name} | ${r.type} | ${val}`);
     });
 
-    tl.info('----------------------------------------');
+    console.log('----------------------------------------');
 
     // Markdown summary
     const lines = [

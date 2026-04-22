@@ -3,7 +3,7 @@ import { setTimeout as delay } from 'timers/promises';
 import fs = require('fs');
 import path = require('path');
 import dns from 'dns/promises';
-
+const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 // Publish Markdown summary
 function publishSummary(name: string, fileBase: string, markdown: string) {
   const dir = process.env['AGENT_TEMPDIRECTORY'] || process.cwd();
@@ -74,15 +74,15 @@ async function run() {
       NO_PROXY: process.env['NO_PROXY'] || process.env['no_proxy']
     };
 
-    tl.info('=== Network Preflight: HTTP(S) Check ===');
+    console.log('=== Network Preflight: HTTP(S) Check ===');
 
     if (proxyInfo.HTTP_PROXY || proxyInfo.HTTPS_PROXY) {
-      tl.info(`Detected proxy configuration:`);
-      if (proxyInfo.HTTP_PROXY) tl.info(`  HTTP_PROXY: ${proxyInfo.HTTP_PROXY}`);
-      if (proxyInfo.HTTPS_PROXY) tl.info(`  HTTPS_PROXY: ${proxyInfo.HTTPS_PROXY}`);
-      if (proxyInfo.NO_PROXY) tl.info(`  NO_PROXY: ${proxyInfo.NO_PROXY}`);
+      console.log(`Detected proxy configuration:`);
+      if (proxyInfo.HTTP_PROXY) console.log(`  HTTP_PROXY: ${proxyInfo.HTTP_PROXY}`);
+      if (proxyInfo.HTTPS_PROXY) console.log(`  HTTPS_PROXY: ${proxyInfo.HTTPS_PROXY}`);
+      if (proxyInfo.NO_PROXY) console.log(`  NO_PROXY: ${proxyInfo.NO_PROXY}`);
     } else {
-      tl.info(`No proxy environment variables detected`);
+      console.log(`No proxy environment variables detected`);
     }
 
     type Result = {
@@ -110,13 +110,13 @@ async function run() {
 
       const ip = await resolveIP(url);
       if (ip) {
-        tl.info(`Resolved IP: ${ip}`);
+        console.log(`Resolved IP: ${ip}`);
       } else {
         tl.warning(`Could not resolve IP address`);
       }
 
       while (attempt <= retries && !passed) {
-        tl.info(`Attempt ${attempt + 1} of ${retries + 1}`);
+        console.log(`Attempt ${attempt + 1} of ${retries + 1}`);
 
         try {
           r = await checkOnce(url, method, timeoutMs);
@@ -124,10 +124,10 @@ async function run() {
           const statusOk = expectStatus(r.status);
           const latencyOk = (!maxLatencyMs || r.latency <= maxLatencyMs);
 
-          tl.info(`Response: status=${r.status}, latency=${r.latency}ms`);
+          console.log(`Response: status=${r.status}, latency=${r.latency}ms`);
 
           if (r.server || r.via) {
-            tl.info(`Headers: server=${r.server ?? '-'}, via=${r.via ?? '-'}`);
+            console.log(`Headers: server=${r.server ?? '-'}, via=${r.via ?? '-'}`);
           }
 
           passed = statusOk && latencyOk;
@@ -153,13 +153,13 @@ async function run() {
 
         if (!passed && attempt++ < retries) {
           const backoff = 250 * attempt;
-          tl.info(`Retrying in ${backoff} ms...`);
+          console.log(`Retrying in ${backoff} ms...`);
           await delay(backoff);
         }
       }
 
       if (passed) {
-        tl.info(`✅ PASS: ${url}`);
+        console.log(`✅ PASS: ${url}`);
       } else {
         tl.error(`❌ FAIL: ${url} - ${reason ?? lastErr?.message ?? 'Unknown error'}`);
       }
@@ -177,17 +177,17 @@ async function run() {
     }
 
     // Console summary (very useful for users)
-    tl.info('----------------------------------------');
-    tl.info('Network Preflight Summary:');
+    console.log('----------------------------------------');
+    console.log('Network Preflight Summary:');
 
     results.forEach(r => {
       const status = r.status ?? r.error ?? 'error';
       const latency = r.latency ?? '-';
       const result = r.passed ? 'PASS' : 'FAIL';
-      tl.info(`${result} | ${r.url} | ${status} | ${latency}ms | IP=${r.ip ?? '-'}`);
+      console.log(`${result} | ${r.url} | ${status} | ${latency}ms | IP=${r.ip ?? '-'}`);
     });
 
-    tl.info('----------------------------------------');
+    console.log('----------------------------------------');
 
     // Markdown summary
     const lines: string[] = [
