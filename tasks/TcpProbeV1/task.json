@@ -6,14 +6,44 @@
   "category": "Utility",
   "author": "https://github.com/microsoft/Network_Preflight-Extension",
   "visibility": [ "Build", "Release" ],
-  "version": { "Major": 1, "Minor": 0, "Patch": 2 },
+  "version": { "Major": 1, "Minor": 1, "Patch": 0 },
   "minimumAgentVersion": "2.221.0",
   "instanceNameFormat": "TCP Probe: $(targets)",
   "inputs": [
-    { "name": "targets", "type": "multiLine", "label": "Targets (host:port)", "required": true },
-    { "name": "timeoutSeconds", "type": "string", "label": "Timeout (seconds)", "defaultValue": "10" },
-    { "name": "useTls", "type": "boolean", "label": "Use TLS", "defaultValue": "false" },
-    { "name": "serverName", "type": "string", "label": "SNI server name (if TLS)", "required": false }
+    {
+      "name": "targets",
+      "type": "multiLine",
+      "label": "Targets (host:port)",
+      "required": true
+    },
+    {
+      "name": "timeoutSeconds",
+      "type": "string",
+      "label": "Timeout (seconds)",
+      "defaultValue": "10"
+    },
+    {
+      "name": "retries",
+      "type": "string",
+      "label": "Retries",
+      "defaultValue": "0",
+      "helpMarkDown": "Number of retry attempts per target when the probe fails (e.g., timeout, ECONNREFUSED)."
+    },
+    {
+      "name": "useTls",
+      "type": "boolean",
+      "label": "Use TLS",
+      "defaultValue": "false"
+    },
+    {
+      "name": "serverName",
+      "type": "string",
+      "label": "SNI server name (if TLS)",
+      "required": false,
+      "helpMarkDown": "Overrides SNI used during TLS handshake. Useful when testing a VIP/LB IP that hosts multiple TLS names."
+    }
   ],
-  "execution": { "Node20_1": { "target": "index.js" } }
+  "execution": {
+    "Node20_1": { "target": "index.js" }
+  }
 }
