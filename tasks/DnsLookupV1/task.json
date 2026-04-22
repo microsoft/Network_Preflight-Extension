@@ -2,13 +2,13 @@
   "id": "9f5c9664-6a89-4a57-9b5e-4d9a2e2dc2b7",
   "name": "DnsLookup",
   "friendlyName": "Network Preflight: DNS Lookup",
-  "description": "Resolve DNS records (A/AAAA/CNAME/TXT/NS) from the agent—simple nslookup-style test.",
-  "helpMarkDown": "Tip: set 'resolver' (e.g. 8.8.8.8) to bypass restrictive corporate DNS during diagnostics.",
+  "description": "Resolve DNS records (A/AAAA/CNAME/TXT/NS) from the agent—nslookup-style network validation.",
+  "helpMarkDown": "Tip: use a custom resolver (e.g. 8.8.8.8) to bypass restrictive corporate DNS and validate external resolution.",
   "category": "Utility",
   "author": "https://github.com/microsoft/Network_Preflight-Extension",
   "visibility": [ "Build", "Release" ],
   "demands": [],
-  "version": { "Major": 1, "Minor": 0, "Patch": 7 },
+  "version": { "Major": 1, "Minor": 1, "Patch": 0 },
   "minimumAgentVersion": "2.221.0",
   "instanceNameFormat": "DNS Lookup: $(recordType) $(targets)",
   "inputs": [
@@ -17,7 +17,7 @@
       "type": "multiLine",
       "label": "Hostnames",
       "required": true,
-      "helpMarkDown": "One hostname per line (e.g., microsoft.com)"
+      "helpMarkDown": "One hostname per line (e.g., microsoft.com, api.contoso.com)"
     },
     {
       "name": "recordType",
@@ -31,14 +31,31 @@
         "CNAME": "CNAME",
         "TXT": "TXT",
         "NS": "NS"
-      }
+      },
+      "helpMarkDown": "DNS record type to query."
     },
     {
       "name": "resolver",
       "type": "string",
       "label": "Custom DNS server (optional)",
       "required": false,
-      "helpMarkDown": "IPv4/IPv6 resolver to query (e.g., 8.8.8.8). If empty, uses the agent's default resolver."
+      "helpMarkDown": "Specify a DNS server (IPv4/IPv6, e.g. 8.8.8.8 or 1.1.1.1). If empty, the agent's default resolver is used."
+    },
+    {
+      "name": "timeoutSeconds",
+      "type": "string",
+      "label": "Timeout (seconds)",
+      "required": false,
+      "defaultValue": "10",
+      "helpMarkDown": "Maximum time to wait for each DNS query before failing."
+    },
+    {
+      "name": "retries",
+      "type": "string",
+      "label": "Retries",
+      "required": false,
+      "defaultValue": "0",
+      "helpMarkDown": "Number of retry attempts per hostname if DNS resolution fails."
     }
   ],
   "execution": {
