@@ -3,7 +3,7 @@ import { setTimeout as delay } from 'timers/promises';
 import fs = require('fs');
 import path = require('path');
 import dns from 'dns/promises';
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
 // Publish Markdown summary
 function publishSummary(name: string, fileBase: string, markdown: string) {
   const dir = process.env['AGENT_TEMPDIRECTORY'] || process.cwd();
